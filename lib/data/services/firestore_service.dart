@@ -15,6 +15,14 @@ class FirestoreService {
     return _firestore.collection(collection).doc(docId).get();
   }
 
+  /// Add a document with an auto-generated ID.
+  Future<DocumentReference<Map<String, dynamic>>> addDocument(
+    String collection,
+    Map<String, dynamic> data,
+  ) {
+    return _firestore.collection(collection).add(data);
+  }
+
   /// Set a document (create or overwrite).
   Future<void> setDocument(
     String collection,

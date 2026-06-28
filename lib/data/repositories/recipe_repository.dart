@@ -1,5 +1,6 @@
 import '../models/recipe_model.dart';
 import '../services/firestore_service.dart';
+import '../services/recipe_seeder.dart';
 
 /// Repository for recipe operations.
 class RecipeRepository {
@@ -9,11 +10,19 @@ class RecipeRepository {
   RecipeRepository({required FirestoreService firestoreService})
       : _firestoreService = firestoreService;
 
+  Future<void> _checkAndSeed() async {
+    final checkSnapshot = await _firestoreService.queryCollection(_collection, limit: 1);
+    if (checkSnapshot.docs.isEmpty) {
+      await RecipeSeeder.seed(_firestoreService);
+    }
+  }
+
   /// Get recipes filtered by meal type and user goal.
   Future<List<RecipeModel>> getRecipes({
     required String mealType,
     required String goal,
   }) async {
+    await _checkAndSeed();
     final snapshot = await _firestoreService.queryCollection(
       _collection,
       filters: [
@@ -37,6 +46,7 @@ class RecipeRepository {
 
   /// Get all recipes for a specific goal (any meal type).
   Future<List<RecipeModel>> getRecipesByGoal(String goal) async {
+    await _checkAndSeed();
     final snapshot = await _firestoreService.queryCollection(
       _collection,
       filters: [
